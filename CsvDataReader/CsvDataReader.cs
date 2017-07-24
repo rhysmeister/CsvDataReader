@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -25,21 +25,32 @@ namespace SqlUtilities
         // have quotes around them and include embedded commas
         private Regex _CsvRegex = new Regex(",(?=(?:[^\"]*\"[^\"]*\")*(?![^\"]*\"))", RegexOptions.Compiled);
 
-        public CsvDataReader(string fileName)
+        public CsvDataReader(string fileName, char separator)
         {
             if (!File.Exists(fileName))
                 throw new FileNotFoundException();
 
-            _stream = new StreamReader(fileName);
-            _headers = _stream.ReadLine().Split(',');
+            if (_CsvRegex.ToString()[0] != separator) {
+                _CsvRegex = new Regex(separator + "(?=(?:[^\"]*\"[^\"]*\")*(?![^\"]*\"))", RegexOptions.Compiled);
+            }
+            if(separator == Char.MinValue)
+            {
+                separator = ',';
+            }
+            _stream = new StreamReader(fileName, Encoding.GetEncoding("iso-8859-1"));
+            _headers = _stream.ReadLine().Split(separator);
         }
 
-        public CsvDataReader(string fileName, Dictionary<string, string> staticColumns)
+        public CsvDataReader(string fileName, Dictionary<string, string> staticColumns, char separator)
         {
             if (!File.Exists(fileName))
                 throw new FileNotFoundException();
 
-            _stream = new StreamReader(fileName);
+            if (_CsvRegex.ToString()[0] != separator) {
+                _CsvRegex = new Regex(separator + "(?=(?:[^\"]*\"[^\"]*\")*(?![^\"]*\"))", RegexOptions.Compiled);
+            }            
+            
+            _stream = new StreamReader(fileName, Encoding.GetEncoding("iso-8859-1"));
 
             // Get the raw header
             string rawHeader = _stream.ReadLine();
@@ -48,10 +59,14 @@ namespace SqlUtilities
             // And all the values into the string we use for reading
             foreach (KeyValuePair<string, string> keyValue in staticColumns)
             {
-                rawHeader += string.Format(",{0}", keyValue.Key);
-                _staticValues += string.Format(",{0}", keyValue.Value.ToString());
+                rawHeader += string.Format("{0}{1}", separator, keyValue.Key);
+                _staticValues += string.Format("{0}{1}", separator, keyValue.Value.ToString());
             }
-            _headers = rawHeader.Split(',');
+            if(separator == Char.MinValue)
+            {
+                separator = ',';
+            }
+            _headers = rawHeader.Split(separator);
 
         }
 
