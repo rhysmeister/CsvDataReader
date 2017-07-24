@@ -7,9 +7,9 @@ __If you download the DLL, you need to Unblock it before you can use it.  That's
 
 
 	[System.Reflection.Assembly]::LoadFrom("CsvDataReader.dll")
-  $separator=[char]9; # Pipe character 
-  #$separator=";"
-  #$separator=$null; # defaults to comma (,) in this case
+ 	$separator=[char]9; # Pipe character 
+ 	#$separator=";"
+ 	#$separator=$null; # defaults to comma (,) in this case
 	$reader = New-Object SqlUtilities.CsvDataReader("SimpleCsv.txt", $separator);
 		
 	$bulkCopy = new-object ("Data.SqlClient.SqlBulkCopy") $ConnectionString
